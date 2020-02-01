@@ -11,7 +11,7 @@ namespace CarPoolApplication.Models
         public string passengerPhoneNumber;
         public string FromPoint;
         public string ToPoint;
-      
+        public string offerID;
       
     }
 }
