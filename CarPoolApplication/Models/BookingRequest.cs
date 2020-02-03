@@ -6,12 +6,12 @@ namespace CarPoolApplication.Models
 {
     class BookingRequest
     {
-        public string ID;
-        public string passengerID;
-        public string passengerPhoneNumber;
-        public string FromPoint;
-        public string ToPoint;
-        public string offerID;
-      
+        public string ID { get; set; }
+        public string passengerID { get; set; }
+        public string FromPoint { get; set; }
+        public string ToPoint { get; set; }
+        public string OfferID { get; set; }
+        public decimal Price { get; set; }
+        public Status Status { get; set; }
     }
 }

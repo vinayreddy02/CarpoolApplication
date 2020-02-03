@@ -17,9 +17,8 @@ namespace CarPoolApplication.Services
         {
             BookingRequest newBookingRequest = new BookingRequest()
             {
-                ID = bookingRequest.passengerID + DateTime.utcNow.Tostring("mmss"),
-                passengerID =bookingRequest.passengerID,
-                passengerPhoneNumber =bookingRequest.passengerPhoneNumber,
+                ID = bookingRequest.passengerID + DateTime.UtcNow.ToString("mmss"),
+                passengerID =bookingRequest.passengerID,               
                 FromPoint = bookingRequest.FromPoint,
                 ToPoint = bookingRequest.ToPoint,
                 offerID =bookingRequest.offerID
@@ -27,6 +26,10 @@ namespace CarPoolApplication.Services
             };
 
             bookingrequests.Add(newBookingRequest);
+        }
+        public List<BookingRequest>  GetRequests(string offerID)
+        {
+            return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.offerID, offerID));
         }
     }
 }

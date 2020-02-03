@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CarPoolApplication.Services
 {
-   public class UtilServises
+   public  class UtilServises
     {
         public List<string> locations = new List<string>()
        {
