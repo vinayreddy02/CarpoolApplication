@@ -5,31 +5,25 @@ using CarPoolApplication.Models;
 
 namespace CarPoolApplication.Services
 {
-    class BookingServices
+    class BookingServices:IService<Booking>
     {
-        private List<BookingRequest> bookingrequests = new List<BookingRequest>();
+        private List<Booking> bookingrequests = new List<Booking>();
 
-        public List<BookingRequest> GetAllRequests()
+        public List<Booking> GetAll()
         {
             return bookingrequests;
         }
-        public void createBookingReqest(BookingRequest bookingRequest )
+        public void Add(Booking bookingRequest )
         {
-            BookingRequest newBookingRequest = new BookingRequest()
-            {
-                ID = bookingRequest.passengerID + DateTime.UtcNow.ToString("mmss"),
-                passengerID =bookingRequest.passengerID,               
-                FromPoint = bookingRequest.FromPoint,
-                ToPoint = bookingRequest.ToPoint,
-                offerID =bookingRequest.offerID
-
-            };
-
-            bookingrequests.Add(newBookingRequest);
+            bookingrequests.Add(bookingRequest);
         }
-        public List<BookingRequest>  GetRequests(string offerID)
+        public List<Booking>  GetRequests(string offerID)
         {
-            return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.offerID, offerID));
+            return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID));
+        }
+        public List<Booking> GetAllbookings(string userID)
+        {
+            return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.PassengerID,userID)&&int.Equals(bookingrequests.Status,Status.confirm));
         }
     }
 }

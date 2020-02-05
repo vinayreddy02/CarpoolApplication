@@ -13,6 +13,17 @@ namespace CarPoolApplication.Models
         public string CarID { get; set; }
         public int AvailableSeats { get; set; }
         public int CostPerPoint { get; set; }
-        public List<string> viaPoints = new List<string>();
+        public DateTime DateTime { get; set; }
+      public Offer(string driverID,string fromPoint,string toPoint,string carID,int availableSeats,int costPerPoint,DateTime dateTime)
+        {
+            DriverID = driverID;
+            FromPoint = fromPoint;
+            ToPoint = toPoint;
+            CarID = carID;
+            AvailableSeats = availableSeats;
+            CostPerPoint = costPerPoint;
+            DateTime = dateTime;
+            ID = driverID + DateTime.UtcNow.ToString("mmss");
+        }
     }
 }

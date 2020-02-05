@@ -6,26 +6,19 @@ using System.Linq;
 
 namespace CarPoolApplication.Services
 {
-    class UserServices
+    class UserServices:IService<User>
     {
         private List<User> Users = new List<User>();
          
-        public List<User> GetUsers()
+        public List<User> GetAll()
         {
             return Users;
         }
-        public User CreateUser(User user)
+        public void Add(User user)
         {
-            User Newuser = new User()
-            {
-                Name = user.Name,
-                ID = user.Name + DateTime.UtcNow.ToString("mmss"),
-                Password=user.Password,
-                PhoneNumber=user.PhoneNumber
 
-            };
-            Users.Add(Newuser);
-            return Newuser;
+            Users.Add(user);
+           
         }
         public User GetUser( string userId)
         {
@@ -33,7 +26,7 @@ namespace CarPoolApplication.Services
         }
         public bool IsValidUser(string ID,string password)
         {
-            return Users.Any(user => string.Equals(user.ID, ID) && string.Equals(user.Password, password));
+            return Users.Any(user => string.Equals(user.ID, ID) && string.Equals(user.PassWord, password));
         }
     }
 }

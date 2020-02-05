@@ -7,26 +7,17 @@ using System.Linq;
 
 namespace CarPoolApplication.Services
 {
-    class OfferServices
+    class OfferServices : IService<Offer>
     {
         private List<Offer> Offers = new List<Offer>();
         public List<string> viapoints = new List<string>();
-        public List<Offer> GetOffers()
+        public List<Offer> GetAll()
         {
             return Offers;
         }
-        public Offer CreateOffer(Offer offer,User user)
+        public void Add(Offer offer)
         {
-            Offer newOffer = new Offer()
-            { ID = user.ID + DateTime.UtcNow.ToString("mmss"),
-             DriverID=user.ID,
-             CarID=offer.CarID,
-             FromPoint=offer.FromPoint,
-             ToPoint=offer.ToPoint,
-             AvailableSeats=offer.AvailableSeats,
-
-            };
-            return newOffer;
+            Offers.Add(offer);
         }
         public Offer GetOffer(string offerID)
         {
@@ -36,50 +27,61 @@ namespace CarPoolApplication.Services
         {
             viapoints.Add(viapoint);
         }
-        public List<Offer> GetListOfAvilableOffers(string frompoint,string topoint)
+        public List<Offer> GetListOfAvilableOffers(string frompoint, string topoint, List<Location> locations)
         {
-            int fromIndex=0, toIndex=0;
+
+            int fromIndex = 0, toIndex = 0;
             List<Offer> AvailableOffers = new List<Offer>();
-            foreach(var offer in Offers)
+
+            for (int index = 0; index < locations.Count; index++)
             {
-                for(int index=0; index<offer.viaPoints.Count; index++)
+                if (string.Equals(locations[index].Place,frompoint))
                 {
-                    if(string.Equals(frompoint, offer.viaPoints[index]))
-                    {
-                        fromIndex = index;
-                    }
-                    else if(string.Equals(topoint, offer.viaPoints[index]))
-                    {
-                        toIndex = index;
-                    }
+                    fromIndex = index;
                 }
-              
-                if (fromIndex < toIndex)
+                else if (string.Equals(locations[index].Place,topoint))
                 {
-                    AvailableOffers.Add(offer);
+                    toIndex = index;
+                }
+                if ((fromIndex != 0) && (toIndex != 0))
+                {
+                    if ((fromIndex < toIndex) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
+                    {
+                        AvailableOffers.Add(GetOffer(locations[fromIndex].OfferID));
+                    }
                 }
             }
             return AvailableOffers;
         }
-        public void ApprovalOfBooking(BookingRequest request,Offer offer)
+        public void ApprovalOfBooking(Booking request, Offer offer, List<Location> locations)
         {
             request.Status = Status.confirm;
             offer.AvailableSeats -= 1;
+            int numberOfPoints;
             int fromIndex = 0, toIndex = 0;
-           
-                  for (int index = 0; index < offer.viaPoints.Count; index++)
-                  {
-                    if (string.Equals(request.FromPoint, offer.viaPoints[index]))
-                     {
+            for (int index = 0; index < locations.Count; index++)
+            {
+                if (string.Equals(request.FromPoint, locations[index]))
+                {
                     fromIndex = index;
-                      }
-                else if (string.Equals(request.ToPoint, offer.viaPoints[index]))
-                     {
+                }
+                else if (string.Equals(request.ToPoint, locations[index]))
+                {
                     toIndex = index;
-                     }
-                   }
-            int numberOfPoints = toIndex - fromIndex;
-            request.Price = numberOfPoints * offer.CostPerPoint;
+                }
+                if (fromIndex != 0 && toIndex != 0)
+                {
+                    if ((fromIndex < toIndex) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
+                    {
+                        numberOfPoints = toIndex - fromIndex;
+                        request.Price = numberOfPoints * offer.CostPerPoint;
+                    }
+                }
+            }
+        }
+        public List<Offer> GetAllOffers(string userID)
+        {
+            return Offers.FindAll(Offer => string.Equals(Offer.DriverID, userID));
         }
     }
 }

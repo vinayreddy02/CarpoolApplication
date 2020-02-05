@@ -1,25 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using system.linq;
+using System.Linq;
+using CarPoolApplication.Models;
+using CarPoolApplication.Services;
 
 namespace CarPoolApplication.Services
 {
-    public class LocationServices
-    {
-        UtilServises utilServices = new UtilServises();
-        public List<string> Locations = new List<string>();
-        public List<string> ViaPoints = new List<string>();
-        public List<string> GetViaPoints(string fromLocation, string toLocation)
+   class LocationServices:IService<Location>
+    { 
+        public List<Location> locations = new List<Location>();
+        public void Add(Location  point)
         {
-            List<string> ViaPoints = new List<string>();
-            int FromIndex = utilServices.locations.FindIndex(fromLocation);
-            int ToIndex = utilServices.locations.FindIndex(toLocation);
-            for(int index=FromIndex;index<=ToIndex;index++)
-            {
-                ViaPoints.Add(utilServices.locations[index]);
-            }
-            return ViaPoints;
+            locations.Add(point);
         }
+        public  List<Location> GetAll()
+        {
+            return locations;
+        }
+        public List<Location> GetAllLocations(string offerID)
+        {
+            return locations.FindAll(location => string.Equals(location.OfferID, offerID));
+        }
+       
     }
+   
 }
