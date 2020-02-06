@@ -19,6 +19,7 @@ namespace CarPoolApplication.Models
             FromPoint = fromPoint;
             ToPoint = toPoint;
             OfferID = offerId;
+            Status = Status.pending;
             ID = userID + DateTime.UtcNow.ToString("mmss");
         }
     }

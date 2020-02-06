@@ -29,7 +29,7 @@ namespace CarPoolApplication.Services
         }
         public List<Offer> GetListOfAvilableOffers(string frompoint, string topoint, List<Location> locations)
         {
-
+            Offer offer;
             int fromIndex = 0, toIndex = 0;
             List<Offer> AvailableOffers = new List<Offer>();
 
@@ -47,16 +47,23 @@ namespace CarPoolApplication.Services
                 {
                     if ((fromIndex < toIndex) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
                     {
-                        AvailableOffers.Add(GetOffer(locations[fromIndex].OfferID));
+                      
+                          offer = GetOffer(locations[fromIndex].OfferID);
+                        if (offer.status.Equals(OfferStatus.open))
+                        {
+                            AvailableOffers.Add(offer);
+                        }
                     }
+                    fromIndex = 0;
+                    toIndex = 0;
                 }
             }
             return AvailableOffers;
         }
         public void ApprovalOfBooking(Booking request, Offer offer, List<Location> locations)
         {
-            request.Status = Status.confirm;
-            offer.AvailableSeats -= 1;
+           
+           
             int numberOfPoints;
             int fromIndex = 0, toIndex = 0;
             for (int index = 0; index < locations.Count; index++)
@@ -75,13 +82,24 @@ namespace CarPoolApplication.Services
                     {
                         numberOfPoints = toIndex - fromIndex;
                         request.Price = numberOfPoints * offer.CostPerPoint;
+                        request.Status = Status.confirm;
+                        offer.AvailableSeats -= 1;
                     }
                 }
             }
         }
+        public void EndRide(Booking booking)
+        {
+            booking.Status = Status.compleated;
+
+        }
         public List<Offer> GetAllOffers(string userID)
         {
             return Offers.FindAll(Offer => string.Equals(Offer.DriverID, userID));
+        }
+        public void CloseOffer(Offer offer)
+        {
+            offer.status = OfferStatus.close;
         }
     }
 }

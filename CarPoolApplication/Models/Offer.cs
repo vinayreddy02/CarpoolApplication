@@ -13,6 +13,7 @@ namespace CarPoolApplication.Models
         public string CarID { get; set; }
         public int AvailableSeats { get; set; }
         public int CostPerPoint { get; set; }
+        public OfferStatus status { get; set; }
         public DateTime DateTime { get; set; }
       public Offer(string driverID,string fromPoint,string toPoint,string carID,int availableSeats,int costPerPoint,DateTime dateTime)
         {
@@ -23,6 +24,7 @@ namespace CarPoolApplication.Models
             AvailableSeats = availableSeats;
             CostPerPoint = costPerPoint;
             DateTime = dateTime;
+            status = OfferStatus.open;
             ID = driverID + DateTime.UtcNow.ToString("mmss");
         }
     }

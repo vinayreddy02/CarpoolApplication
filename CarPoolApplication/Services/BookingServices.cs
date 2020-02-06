@@ -19,11 +19,15 @@ namespace CarPoolApplication.Services
         }
         public List<Booking>  GetRequests(string offerID)
         {
-            return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID));
+            return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID)&&(bookingrequests.Status==Status.pending));
         }
         public List<Booking> GetAllbookings(string userID)
         {
-            return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.PassengerID,userID)&&int.Equals(bookingrequests.Status,Status.confirm));
+            return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.PassengerID,userID)&&(bookingrequests.Status==Status.compleated));
+        }
+        public List<Booking> GetAllRides(string offerID)
+        {
+            return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) &&(bookingrequests.Status==Status.confirm));
         }
     }
 }
