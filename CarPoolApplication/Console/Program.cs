@@ -51,6 +51,7 @@ namespace CarPoolApplication
                                     { Main:
                                         try
                                         {
+                                            Console.WriteLine("Welcome..choose an option\n");
                                             Console.WriteLine("1.For Creating offer\n2.Book a car\n3.View all bookings\n4.View all created offers\n5.Log out\n");
                                             Options choice = (Options)Convert.ToInt32(Console.ReadLine());
                                             switch (choice)
@@ -125,9 +126,8 @@ namespace CarPoolApplication
                                                                             try
                                                                             {
                                                                                 Console.WriteLine("view all requets and approve\n");
-                                                                                Console.WriteLine("Enter offerID\n");
-                                                                                string offerID = Console.ReadLine();                                                                              
-                                                                                Offer offer = offerServices.GetOffer(offerID);
+                                                                                                                                                        
+                                                                                Offer offer = offerServices.GetOffer(user.ID);
                                                                                 if (offer != null)
                                                                                 {
                                                                                     int numberOfSeats = offer.AvailableSeats;
@@ -135,21 +135,23 @@ namespace CarPoolApplication
                                                                                     {
                                                                                         Console.WriteLine("approve reqest\n");
 
-                                                                                        List<Booking> bookingRequests = bookingServices.GetRequests(offerID);
+                                                                                        List<Booking> bookingRequests = bookingServices.GetRequests(offer.ID);
                                                                                         if (bookingRequests.Count > 0)
                                                                                         {
 
                                                                                             int index = 1;
                                                                                             foreach (var request in bookingRequests)
                                                                                             {
-                                                                                                Console.WriteLine("{0}.From Point:{1}  ToPoint:{2} \n", index, request.FromPoint, request.ToPoint);
-                                                                                                index++;
-
+                                                                                                if (request.NumberOfseats < offer.AvailableSeats)
+                                                                                                {
+                                                                                                    Console.WriteLine("{0}.From Point:{1}  ToPoint:{2} \n", index, request.FromPoint, request.ToPoint);
+                                                                                                    index++;
+                                                                                                }
                                                                                             }
                                                                                             int approvedRequest = Convert.ToInt32(Console.ReadLine());
                                                                                             Booking bookingRequest = bookingRequests[approvedRequest - 1];
                                                                                             offerServices.ApprovalOfBooking(bookingRequest, offer, locations);
-                                                                                            bookingRequests.Remove(bookingRequest);
+                                                                                            Console.WriteLine("Booking Approved\n");
                                                                                             break;
 
                                                                                         }
@@ -168,24 +170,24 @@ namespace CarPoolApplication
                                                                                 }
                                                                                 else
                                                                                 {
-                                                                                    Console.WriteLine("Invalid offerID\n");
+                                                                                    Console.WriteLine("There are no available offers\n");
                                                                                     break;
                                                                                 }
                                                                             }
                                                                             catch
                                                                             {
                                                                                 Console.WriteLine("ivalid input\n");
-                                                                                break;                                                                            }
+                                                                                break;          
+                                                                            }
                                                                         }
                                                                     case OfferOption.EndRide:
                                                                         {
 
-                                                                            Console.WriteLine("Enter offerID\n");
-                                                                            string offerID = Console.ReadLine();
-                                                                            Offer offer = offerServices.GetOffer(offerID);
+                                                                          
+                                                                            Offer offer = offerServices.GetOffer(user.ID);
                                                                             if (offer != null)
                                                                             {
-                                                                                List<Booking> bookings = bookingServices.GetAllRides(offerID);
+                                                                                List<Booking> bookings = bookingServices.GetAllRides(offer.ID);
                                                                                 if (bookings.Count != 0)
                                                                                 {
                                                                                     int index = 1;
@@ -199,7 +201,7 @@ namespace CarPoolApplication
                                                                                     Booking ride = bookings[rideNumber-1];
                                                                                     offerServices.EndRide(ride);
                                                                                     offer.AvailableSeats += 1;
-
+                                                                                    Console.WriteLine("Ride Ended\nThank You:)\n");
                                                                                     break;
                                                                                 }
                                                                                 else
@@ -212,33 +214,32 @@ namespace CarPoolApplication
 
                                                                             else
                                                                             {
-                                                                                Console.WriteLine("Invalid offerID\n");
+                                                                                Console.WriteLine("There are no available offers\n");
                                                                                 break;
                                                                             }
 
                                                                         }
                                                                     case OfferOption.CloseOffer:
                                                                         {
-                                                                            Console.WriteLine("Enter offerID\n");
-                                                                            string offerID = Console.ReadLine();
-                                                                            Offer offer = offerServices.GetOffer(offerID);
+                                                                            Offer offer = offerServices.GetOffer(user.ID);
                                                                             if (offer != null)
                                                                             {
-                                                                                List<Booking> bookings = bookingServices.GetAllRides(offerID);
+                                                                                List<Booking> bookings = bookingServices.GetAllRides(offer.ID);
                                                                                 if (bookings.Count == 0)
                                                                                 {
                                                                                     offerServices.CloseOffer(offer);
+                                                                                    Console.WriteLine("Offer Closed\n");
                                                                                 }
                                                                                 else
                                                                                 {
-                                                                                    Console.WriteLine("there are are some rides to end\n");
+                                                                                    Console.WriteLine("There are  some rides to end\n");
                                                                                 }
 
                                                                                 break;
                                                                             }
                                                                             else
                                                                             {
-                                                                                Console.WriteLine("Invalid offerID\n");
+                                                                                Console.WriteLine("There are no available offers\n");
                                                                                 break;
                                                                             }
                                                                         }
@@ -268,11 +269,14 @@ namespace CarPoolApplication
                                                         try
                                                         {
                                                             Console.WriteLine("Enter from location: ");
-                                                            string FromLocation = Console.ReadLine();
+                                                            string fromLocation = Console.ReadLine();
                                                             Console.WriteLine("Enter to location: ");
-                                                            string ToLocation = Console.ReadLine();
-
-                                                            List<Offer> availableOffers = offerServices.GetListOfAvilableOffers(FromLocation, ToLocation, locations);
+                                                            string toLocation = Console.ReadLine();
+                                                            Console.WriteLine("Enter number of seats to book\n");
+                                                            int numberOfSeats = Convert.ToInt32(Console.ReadLine());
+                                                            Console.WriteLine("Enter date and time in (yyyy/mm/day hr:min am/pm) formate\n");
+                                                            DateTime dateTime = DateTime.Parse(Console.ReadLine());
+                                                            List<Offer> availableOffers = offerServices.GetListOfAvilableOffers(fromLocation, toLocation, locations,numberOfSeats,dateTime);
                                                             if (availableOffers.Count > 0)
                                                             {
                                                                 Console.WriteLine("select  offer\nSNo.costperPoint\n");
@@ -281,9 +285,10 @@ namespace CarPoolApplication
                                                                     Console.WriteLine(index + 1 + "." + availableOffers[index].CostPerPoint + "\n");
                                                                 }
                                                                 int selectedOption = Convert.ToInt32(Console.ReadLine());
-                                                                Offer selectedOffer = availableOffers[selectedOption];
-                                                                Booking bookingRequest = new Booking(user.ID, FromLocation, ToLocation, selectedOffer.ID);
+                                                                Offer selectedOffer = availableOffers[selectedOption-1];
+                                                                Booking bookingRequest = new Booking(user.ID, fromLocation, toLocation, selectedOffer.ID,numberOfSeats);
                                                                 bookingServices.Add(bookingRequest);
+                                                                Console.WriteLine("Booking reqest sent :)\n");
                                                                 break;
                                                             }
                                                             else

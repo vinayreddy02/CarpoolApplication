@@ -19,18 +19,24 @@ namespace CarPoolApplication.Services
         {
             Offers.Add(offer);
         }
-        public Offer GetOffer(string offerID)
+        public Offer GetOffer(string userID)
         {
-            return Offers.FirstOrDefault(offer => string.Equals(offer.ID, offerID));
+            return Offers.FirstOrDefault(offer => string.Equals(offer.DriverID, userID));
         }
         public void AddViapoint(string viapoint)
         {
             viapoints.Add(viapoint);
         }
-        public List<Offer> GetListOfAvilableOffers(string frompoint, string topoint, List<Location> locations)
+
+        public Offer GetOfferUsingOfferID(string OfferID)
+        {
+            return Offers.FirstOrDefault(offer => string.Equals(offer.ID, OfferID));
+        }
+
+        public List<Offer> GetListOfAvilableOffers(string frompoint, string topoint, List<Location> locations,int numberOfSeats,DateTime dateTime)
         {
             Offer offer;
-            int fromIndex = 0, toIndex = 0;
+            int fromIndex = -1, toIndex = -1;
             List<Offer> AvailableOffers = new List<Offer>();
 
             for (int index = 0; index < locations.Count; index++)
@@ -43,19 +49,18 @@ namespace CarPoolApplication.Services
                 {
                     toIndex = index;
                 }
-                if ((fromIndex != 0) && (toIndex != 0))
+                if ((fromIndex != -1) && (toIndex != -1))
                 {
-                    if ((fromIndex < toIndex) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
+                    if ((locations[fromIndex].StationNumber < locations[toIndex].StationNumber) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
                     {
-                      
-                          offer = GetOffer(locations[fromIndex].OfferID);
-                        if (offer.status.Equals(OfferStatus.open))
+                        offer = GetOfferUsingOfferID(locations[fromIndex].OfferID);
+                        if (offer.status.Equals(OfferStatus.open)&&(offer.AvailableSeats>numberOfSeats)&&(string.Equals(offer.DateTime.ToString(),dateTime.ToString())))
                         {
                             AvailableOffers.Add(offer);
                         }
                     }
-                    fromIndex = 0;
-                    toIndex = 0;
+                    fromIndex = -1;
+                    toIndex = -1;
                 }
             }
             return AvailableOffers;
@@ -63,34 +68,37 @@ namespace CarPoolApplication.Services
         public void ApprovalOfBooking(Booking request, Offer offer, List<Location> locations)
         {
            
-           
             int numberOfPoints;
-            int fromIndex = 0, toIndex = 0;
+            int fromIndex = -1, toIndex = -1;
             for (int index = 0; index < locations.Count; index++)
             {
-                if (string.Equals(request.FromPoint, locations[index]))
+                if (string.Equals(request.FromPoint, locations[index].Place))
                 {
                     fromIndex = index;
                 }
-                else if (string.Equals(request.ToPoint, locations[index]))
+                else if (string.Equals(request.ToPoint, locations[index].Place))
                 {
                     toIndex = index;
                 }
-                if (fromIndex != 0 && toIndex != 0)
+                if (fromIndex != -1 && toIndex != -1)
                 {
-                    if ((fromIndex < toIndex) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
+                    if ((locations[fromIndex].StationNumber<locations[toIndex].StationNumber) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
                     {
-                        numberOfPoints = toIndex - fromIndex;
+                        numberOfPoints = locations[toIndex].StationNumber-locations[fromIndex].StationNumber;
                         request.Price = numberOfPoints * offer.CostPerPoint;
-                        request.Status = Status.confirm;
-                        offer.AvailableSeats -= 1;
+                        request.Status =Status.confirm;
+                        offer.AvailableSeats -= request.NumberOfseats;
                     }
+                    fromIndex = -1;
+                    toIndex = -1;
+
                 }
             }
+
         }
         public void EndRide(Booking booking)
         {
-            booking.Status = Status.compleated;
+            booking.Status =Status.compleated;
 
         }
         public List<Offer> GetAllOffers(string userID)
@@ -99,7 +107,7 @@ namespace CarPoolApplication.Services
         }
         public void CloseOffer(Offer offer)
         {
-            offer.status = OfferStatus.close;
+            offer.status +=1;
         }
     }
 }
