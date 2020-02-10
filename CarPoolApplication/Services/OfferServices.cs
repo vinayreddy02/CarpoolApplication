@@ -13,101 +13,176 @@ namespace CarPoolApplication.Services
         public List<string> viapoints = new List<string>();
         public List<Offer> GetAll()
         {
-            return Offers;
+            try
+            {
+                return Offers;
+            }
+            catch
+            {
+                return null;
+            }
         }
-        public void Add(Offer offer)
+        public bool Add(Offer offer)
         {
-            Offers.Add(offer);
-        }
-        public Offer GetOffer(string userID)
-        {
-            return Offers.FirstOrDefault(offer => string.Equals(offer.DriverID, userID));
-        }
-        public void AddViapoint(string viapoint)
-        {
-            viapoints.Add(viapoint);
-        }
+            try
+            {
+                Offers.Add(offer);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
 
+        }
+        public List<Offer> GetOffers(string userID)
+        {
+            try
+            {
+                return Offers.FindAll(offer => string.Equals(offer.DriverID, userID) && offer.status.Equals(OfferStatus.open));
+            }
+            catch
+            {
+                return null;
+            }
+        }   
+        public bool AddViapoint(string viapoint)
+        {
+            try
+            {
+                viapoints.Add(viapoint);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
         public Offer GetOfferUsingOfferID(string OfferID)
         {
-            return Offers.FirstOrDefault(offer => string.Equals(offer.ID, OfferID));
+            try {
+                return Offers.FirstOrDefault(offer => string.Equals(offer.ID, OfferID));
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public List<Offer> GetListOfAvilableOffers(string frompoint, string topoint, List<Location> locations,int numberOfSeats,DateTime dateTime)
         {
-            Offer offer;
-            int fromIndex = -1, toIndex = -1;
-            List<Offer> AvailableOffers = new List<Offer>();
-
-            for (int index = 0; index < locations.Count; index++)
+            try
             {
-                if (string.Equals(locations[index].Place,frompoint))
+                Offer offer;
+                int fromIndex = -1, toIndex = -1;
+                List<Offer> AvailableOffers = new List<Offer>();
+
+                for (int index = 0; index < locations.Count; index++)
                 {
-                    fromIndex = index;
-                }
-                else if (string.Equals(locations[index].Place,topoint))
-                {
-                    toIndex = index;
-                }
-                if ((fromIndex != -1) && (toIndex != -1))
-                {
-                    if ((locations[fromIndex].StationNumber < locations[toIndex].StationNumber) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
+                    if (string.Equals(locations[index].Place, frompoint))
                     {
-                        offer = GetOfferUsingOfferID(locations[fromIndex].OfferID);
-                        if (offer.status.Equals(OfferStatus.open)&&(offer.AvailableSeats>numberOfSeats)&&(string.Equals(offer.DateTime.ToString(),dateTime.ToString())))
+                        fromIndex = index;
+                    }
+                    else if (string.Equals(locations[index].Place, topoint))
+                    {
+                        toIndex = index;
+                    }
+                    if ((fromIndex != -1) && (toIndex != -1))
+                    {
+                        if ((locations[fromIndex].StationNumber < locations[toIndex].StationNumber) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
                         {
-                            AvailableOffers.Add(offer);
+                            offer = GetOfferUsingOfferID(locations[fromIndex].OfferID);
+                            if (offer.status.Equals(OfferStatus.open) && (offer.AvailableSeats > numberOfSeats) && (string.Equals(offer.DateTime.Date.ToString(), dateTime.Date.ToString())))
+                            {
+                                AvailableOffers.Add(offer);
+                            }
                         }
+                        fromIndex = -1;
+                        toIndex = -1;
                     }
-                    fromIndex = -1;
-                    toIndex = -1;
                 }
+                return AvailableOffers;
             }
-            return AvailableOffers;
-        }
-        public void ApprovalOfBooking(Booking request, Offer offer, List<Location> locations)
-        {
-           
-            int numberOfPoints;
-            int fromIndex = -1, toIndex = -1;
-            for (int index = 0; index < locations.Count; index++)
+            catch
             {
-                if (string.Equals(request.FromPoint, locations[index].Place))
+                return null;
+            }
+        }
+        public bool ApprovalOfBooking(Booking request, Offer offer, List<Location> locations)
+        {
+            try
+            {
+                int numberOfPoints;
+                int fromIndex = -1, toIndex = -1;
+                for (int index = 0; index < locations.Count; index++)
                 {
-                    fromIndex = index;
-                }
-                else if (string.Equals(request.ToPoint, locations[index].Place))
-                {
-                    toIndex = index;
-                }
-                if (fromIndex != -1 && toIndex != -1)
-                {
-                    if ((locations[fromIndex].StationNumber<locations[toIndex].StationNumber) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
+                    if (string.Equals(request.FromPoint, locations[index].Place))
                     {
-                        numberOfPoints = locations[toIndex].StationNumber-locations[fromIndex].StationNumber;
-                        request.Price = numberOfPoints * offer.CostPerPoint;
-                        request.Status =Status.confirm;
-                        offer.AvailableSeats -= request.NumberOfseats;
+                        fromIndex = index;
                     }
-                    fromIndex = -1;
-                    toIndex = -1;
+                    else if (string.Equals(request.ToPoint, locations[index].Place))
+                    {
+                        toIndex = index;
+                    }
+                    if (fromIndex != -1 && toIndex != -1)
+                    {
+                        if ((locations[fromIndex].StationNumber < locations[toIndex].StationNumber) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
+                        {
+                            numberOfPoints = locations[toIndex].StationNumber - locations[fromIndex].StationNumber;
+                            request.Price = numberOfPoints * offer.CostPerPoint;
+                            request.Status = Status.confirm;
+                            offer.AvailableSeats -= request.NumberOfseats;
 
+                        }
+                        fromIndex = -1;
+                        toIndex = -1;
+
+                    }
                 }
+                return true;
+            }
+            catch
+            {
+                return false;
             }
 
         }
-        public void EndRide(Booking booking)
+        public bool EndRide(Booking booking)
         {
-            booking.Status =Status.compleated;
+            try
+            {
+                booking.Status = Status.compleated;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
 
         }
         public List<Offer> GetAllOffers(string userID)
         {
-            return Offers.FindAll(Offer => string.Equals(Offer.DriverID, userID));
+            try
+            {
+                return Offers.FindAll(Offer => string.Equals(Offer.DriverID, userID));
+            }
+            catch
+            {
+                return null;
+            }
+
         }
-        public void CloseOffer(Offer offer)
+        public bool CloseOffer(Offer offer)
         {
-            offer.status +=1;
+            try
+            {
+                offer.status = OfferStatus.close;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

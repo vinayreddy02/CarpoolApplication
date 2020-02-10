@@ -10,17 +10,43 @@ namespace CarPoolApplication.Services
    class LocationServices:IService<Location>
     { 
         public List<Location> locations = new List<Location>();
-        public void Add(Location  point)
+        public bool Add(Location  point)
         {
-            locations.Add(point);
+            try
+            {
+                locations.Add(point);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
         public  List<Location> GetAll()
         {
-            return locations;
+            try
+            {
+                return locations;
+            }
+            catch
+            {
+                return null;
+            }
         }
         public List<Location> GetAllLocations(string offerID)
         {
-            return locations.FindAll(location => string.Equals(location.OfferID, offerID));
+            try
+            {
+                return locations.FindAll(location => string.Equals(location.OfferID, offerID));
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        public bool IsPlaceExists(string place,string offerID)
+        {
+            return locations.Any(location => string.Equals(location.Place, place) && string.Equals(location.OfferID, offerID));
         }
        
     }

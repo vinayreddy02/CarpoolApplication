@@ -6,7 +6,7 @@ namespace CarPoolApplication.Services
 {
     interface IService<T>
     {
-        public void Add(T item);
+        public bool Add(T item);
         public List<T> GetAll();
     }
 }

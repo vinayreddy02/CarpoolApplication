@@ -12,21 +12,44 @@ namespace CarPoolApplication.Services
          
         public List<User> GetAll()
         {
-            return Users;
+            try
+            {
+                return Users;
+            }
+            catch
+            {
+                return null;
+            }
         }
-        public void Add(User user)
+        public bool Add(User user)
         {
-
-            Users.Add(user);
+            try
+            {
+                Users.Add(user);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
            
         }
         public User GetUser( string userId)
         {
-            return Users.FirstOrDefault(user => string.Equals(user.ID, userId));
+            try
+            {
+                return Users.FirstOrDefault(user => string.Equals(user.ID, userId));
+            }
+            catch
+            {
+                return null;
+            }
         }
         public bool IsValidUser(string ID,string password)
         {
-            return Users.Any(user => string.Equals(user.ID, ID) && string.Equals(user.PassWord, password));
+           
+                return Users.Any(user => string.Equals(user.ID, ID) && string.Equals(user.PassWord, password));
+           
         }
     }
 }
