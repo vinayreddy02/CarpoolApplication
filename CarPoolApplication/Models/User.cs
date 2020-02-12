@@ -9,8 +9,8 @@ namespace CarPoolApplication.Models
         public string Name { get; set; }
         public string ID { get; set; }
         public string PassWord { get; set; }
-        public decimal PhoneNumber { get; set; }
-        public User(string name,string passWord,decimal phoneNumber)
+        public string PhoneNumber { get; set; }
+        public User(string name,string passWord,string phoneNumber)
         {
             Name = name;
             PassWord = passWord;

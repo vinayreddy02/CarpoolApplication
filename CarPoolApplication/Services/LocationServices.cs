@@ -4,10 +4,11 @@ using System.Text;
 using System.Linq;
 using CarPoolApplication.Models;
 using CarPoolApplication.Services;
+using CarPoolApplication.Interfaces;
 
 namespace CarPoolApplication.Services
 {
-   class LocationServices:IService<Location>
+   class LocationServices: ILocationService
     { 
         public List<Location> locations = new List<Location>();
         public bool Add(Location  point)

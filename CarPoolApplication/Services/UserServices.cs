@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using CarPoolApplication.Models;
 using System.Linq;
+using CarPoolApplication.Interfaces;
 
 namespace CarPoolApplication.Services
 {
-    class UserServices:IService<User>
+    class UserServices: IUserService
     {
         private List<User> Users = new List<User>();
          

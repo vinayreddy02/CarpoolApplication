@@ -4,13 +4,14 @@ using System.Text;
 using CarPoolApplication.Models;
 using CarPoolApplication.Services;
 using System.Linq;
+using CarPoolApplication.Interfaces;
 
 namespace CarPoolApplication.Services
 {
-    class OfferServices : IService<Offer>
+    class OfferServices : IOfferService
     {
         private List<Offer> Offers = new List<Offer>();
-        public List<string> viapoints = new List<string>();
+       
         public List<Offer> GetAll()
         {
             try
@@ -39,25 +40,14 @@ namespace CarPoolApplication.Services
         {
             try
             {
-                return Offers.FindAll(offer => string.Equals(offer.DriverID, userID) && offer.status.Equals(OfferStatus.open));
+                return Offers.FindAll(offer => string.Equals(offer.DriverID, userID) && offer.Status.Equals(OfferStatus.open));
             }
             catch
             {
                 return null;
             }
         }   
-        public bool AddViapoint(string viapoint)
-        {
-            try
-            {
-                viapoints.Add(viapoint);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+       
         public Offer GetOfferUsingOfferID(string OfferID)
         {
             try {
@@ -74,7 +64,7 @@ namespace CarPoolApplication.Services
             try
             {
                 Offer offer;
-                int fromIndex = -1, toIndex = -1;
+                int fromIndex = -1, toIndex = -1, numberOfPoints;
                 List<Offer> AvailableOffers = new List<Offer>();
 
                 for (int index = 0; index < locations.Count; index++)
@@ -92,8 +82,10 @@ namespace CarPoolApplication.Services
                         if ((locations[fromIndex].StationNumber < locations[toIndex].StationNumber) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
                         {
                             offer = GetOfferUsingOfferID(locations[fromIndex].OfferID);
-                            if (offer.status.Equals(OfferStatus.open) && (offer.AvailableSeats > numberOfSeats) && (string.Equals(offer.DateTime.Date.ToString(), dateTime.Date.ToString())))
+                            if (offer.Status.Equals(OfferStatus.open) && (offer.AvailableSeats > numberOfSeats) && (string.Equals(offer.DateTime.Date.ToString(), dateTime.Date.ToString())))
                             {
+                                numberOfPoints = locations[toIndex].StationNumber - locations[fromIndex].StationNumber;
+                                offer.Price = numberOfPoints * offer.CostPerPoint;
                                 AvailableOffers.Add(offer);
                             }
                         }
@@ -129,7 +121,7 @@ namespace CarPoolApplication.Services
                         if ((locations[fromIndex].StationNumber < locations[toIndex].StationNumber) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
                         {
                             numberOfPoints = locations[toIndex].StationNumber - locations[fromIndex].StationNumber;
-                            request.Price = numberOfPoints * offer.CostPerPoint;
+                            request.Price = numberOfPoints * offer.CostPerPoint*request.NumberOfseats;
                             request.Status = Status.confirm;
                             offer.AvailableSeats -= request.NumberOfseats;
 
@@ -147,12 +139,19 @@ namespace CarPoolApplication.Services
             }
 
         }
-        public bool EndRide(Booking booking)
+        public bool EndRide(Offer offer, List<Booking> bookings)
         {
             try
             {
-                booking.Status = Status.compleated;
+                
+                foreach (var booking in bookings)
+                {
+                    booking.Status = Status.compleated;
+                }
+                offer.RideStatus = RideStatus.Compleated;
+
                 return true;
+
             }
             catch
             {
@@ -172,11 +171,29 @@ namespace CarPoolApplication.Services
             }
 
         }
+        public bool StartRide(Offer offer,List<Booking> bookings)
+        {
+            try
+            {
+                offer.RideStatus = RideStatus.running;
+                foreach(var booking in bookings)
+                {
+                    booking.Status = Status.running;
+                }
+
+                return true;
+
+            }
+            catch
+            {
+                return false;
+            }
+        }
         public bool CloseOffer(Offer offer)
         {
             try
             {
-                offer.status = OfferStatus.close;
+                offer.Status = OfferStatus.close;
                 return true;
             }
             catch

@@ -13,7 +13,7 @@ namespace CarPoolApplication.Models
         public int Numberofseats { get; set; }
         public Vehicle(string name,string number,string userid,int numberOfSeats)
         {
-            ID = number + DateTime.UtcNow.ToString("mmss");
+            ID = number +""+name;
             CarName = name;
             CarNumber = number;
             UserID = userid;

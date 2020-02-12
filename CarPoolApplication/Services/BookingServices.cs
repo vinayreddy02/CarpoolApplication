@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using CarPoolApplication.Models;
+using CarPoolApplication.Interfaces;
 
 namespace CarPoolApplication.Services
 {
-    class BookingServices : IService<Booking>
+    class BookingServices : IBookingService
     {
         private List<Booking> bookingrequests = new List<Booking>();
 
@@ -58,7 +59,7 @@ namespace CarPoolApplication.Services
                 return null;
             }
         }
-        public List<Booking> GetAllRides(string offerID)
+        public List<Booking> GetAllRidesToStart(string offerID)
         {
             try
             {
@@ -69,5 +70,17 @@ namespace CarPoolApplication.Services
                 return null;
             }
         }
+        public List<Booking> GetAllRidesToEnd(string offerID)
+        {
+            try
+            {
+                return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) && (bookingrequests.Status.Equals(Status.running)));
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }
+
