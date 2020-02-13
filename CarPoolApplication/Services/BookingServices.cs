@@ -30,7 +30,7 @@ namespace CarPoolApplication.Services
         {
             try
             {
-                return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) && (bookingrequests.Status.Equals(Status.pending)));
+                return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) && (bookingrequests.Status.Equals(BookingStatus.pending)));
             }
             catch
             {
@@ -63,7 +63,18 @@ namespace CarPoolApplication.Services
         {
             try
             {
-                return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) && (bookingrequests.Status.Equals(Status.confirm)));
+                return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) && (bookingrequests.Status.Equals(BookingStatus.confirm)));
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        public List<Booking> GetAllRidesCancel(string offerID)
+        {
+            try
+            {
+                return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) && (bookingrequests.Status.Equals(BookingStatus.confirm)) || (bookingrequests.Status.Equals(BookingStatus.pending)));
             }
             catch
             {
@@ -74,7 +85,7 @@ namespace CarPoolApplication.Services
         {
             try
             {
-                return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) && (bookingrequests.Status.Equals(Status.running)));
+                return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) && (bookingrequests.Status.Equals(BookingStatus.running)));
             }
             catch
             {

@@ -34,6 +34,10 @@ namespace CarPoolApplication.Services
                 return null;
             }
         }
+        public List<Location> GetLocations(string place)
+        {
+            return locations.FindAll(location => string.Equals(location.Place, place));
+        }
         public List<Location> GetAllLocations(string offerID)
         {
             try
@@ -45,10 +49,7 @@ namespace CarPoolApplication.Services
                 return null;
             }
         }
-        public bool IsPlaceExists(string place,string offerID)
-        {
-            return locations.Any(location => string.Equals(location.Place, place) && string.Equals(location.OfferID, offerID));
-        }
+    
        
     }
    

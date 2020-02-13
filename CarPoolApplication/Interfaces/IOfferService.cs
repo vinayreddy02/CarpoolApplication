@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using CarPoolApplication.Models;
+using CarPoolApplication.Services;
 
 namespace CarPoolApplication.Interfaces
 {
@@ -11,8 +12,8 @@ namespace CarPoolApplication.Interfaces
         public bool Add(Offer offer);
         public List<Offer> GetOffers(string userID);
         public Offer GetOfferUsingOfferID(string OfferID);
-        public List<Offer> GetListOfAvilableOffers(string frompoint, string topoint, List<Location> locations, int numberOfSeats, DateTime dateTime);
-        public bool ApprovalOfBooking(Booking request, Offer offer, List<Location> locations);
+        public List<Offer> GetAvilableOffers(string frompoint, string topoint, LocationServices locationService, int numberOfSeats, DateTime dateTime);
+        public bool ApprovalOfBooking(Booking request, Offer offer,LocationServices locationService);
         public bool EndRide(Offer offer, List<Booking> bookings);
         public bool StartRide(Offer offer, List<Booking> bookings);
         public List<Offer> GetAllOffers(string userID);

@@ -59,38 +59,30 @@ namespace CarPoolApplication.Services
             }
         }
 
-        public List<Offer> GetListOfAvilableOffers(string frompoint, string topoint, List<Location> locations,int numberOfSeats,DateTime dateTime)
+       
+        public List<Offer> GetAvilableOffers(string frompoint, string topoint, LocationServices locationService, int numberOfSeats, DateTime dateTime)
         {
             try
             {
                 Offer offer;
-                int fromIndex = -1, toIndex = -1, numberOfPoints;
+                int numberOfPoints;
                 List<Offer> AvailableOffers = new List<Offer>();
-
-                for (int index = 0; index < locations.Count; index++)
+                List<Location> fromLocations = locationService.GetLocations(frompoint);
+                List<Location> toLocations = locationService.GetLocations(topoint);
+                for (int fromIndex = 0; fromIndex < fromLocations.Count; fromIndex++)
                 {
-                    if (string.Equals(locations[index].Place, frompoint))
+                    for (int toIndex = 0; toIndex < fromLocations.Count; toIndex++)
                     {
-                        fromIndex = index;
-                    }
-                    else if (string.Equals(locations[index].Place, topoint))
-                    {
-                        toIndex = index;
-                    }
-                    if ((fromIndex != -1) && (toIndex != -1))
-                    {
-                        if ((locations[fromIndex].StationNumber < locations[toIndex].StationNumber) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
+                        if (string.Equals(fromLocations[fromIndex].OfferID, toLocations[toIndex].OfferID) && fromLocations[fromIndex].StationNumber < toLocations[toIndex].StationNumber)
                         {
-                            offer = GetOfferUsingOfferID(locations[fromIndex].OfferID);
+                            offer = GetOfferUsingOfferID(fromLocations[fromIndex].OfferID);
                             if (offer.Status.Equals(OfferStatus.open) && (offer.AvailableSeats > numberOfSeats) && (string.Equals(offer.DateTime.Date.ToString(), dateTime.Date.ToString())))
                             {
-                                numberOfPoints = locations[toIndex].StationNumber - locations[fromIndex].StationNumber;
+                                numberOfPoints = toLocations[toIndex].StationNumber - fromLocations[fromIndex].StationNumber;
                                 offer.Price = numberOfPoints * offer.CostPerPoint;
                                 AvailableOffers.Add(offer);
                             }
                         }
-                        fromIndex = -1;
-                        toIndex = -1;
                     }
                 }
                 return AvailableOffers;
@@ -100,11 +92,13 @@ namespace CarPoolApplication.Services
                 return null;
             }
         }
-        public bool ApprovalOfBooking(Booking request, Offer offer, List<Location> locations)
+        
+        public bool ApprovalOfBooking(Booking request, Offer offer, LocationServices locationService)
         {
             try
             {
                 int numberOfPoints;
+                List<Location> locations = locationService.GetAllLocations(offer.ID);
                 int fromIndex = -1, toIndex = -1;
                 for (int index = 0; index < locations.Count; index++)
                 {
@@ -118,12 +112,16 @@ namespace CarPoolApplication.Services
                     }
                     if (fromIndex != -1 && toIndex != -1)
                     {
-                        if ((locations[fromIndex].StationNumber < locations[toIndex].StationNumber) && string.Equals(locations[fromIndex].OfferID, locations[toIndex].OfferID))
+                        if (locations[fromIndex].StationNumber < locations[toIndex].StationNumber )
                         {
                             numberOfPoints = locations[toIndex].StationNumber - locations[fromIndex].StationNumber;
                             request.Price = numberOfPoints * offer.CostPerPoint*request.NumberOfseats;
-                            request.Status = Status.confirm;
+                            request.Status = BookingStatus.confirm;
                             offer.AvailableSeats -= request.NumberOfseats;
+                            if(offer.AvailableSeats==0)
+                            {
+                                offer.Status = OfferStatus.close;
+                            }
 
                         }
                         fromIndex = -1;
@@ -139,6 +137,7 @@ namespace CarPoolApplication.Services
             }
 
         }
+        
         public bool EndRide(Offer offer, List<Booking> bookings)
         {
             try
@@ -146,7 +145,7 @@ namespace CarPoolApplication.Services
                 
                 foreach (var booking in bookings)
                 {
-                    booking.Status = Status.compleated;
+                    booking.Status = BookingStatus.compleated;
                 }
                 offer.RideStatus = RideStatus.Compleated;
 
@@ -176,9 +175,13 @@ namespace CarPoolApplication.Services
             try
             {
                 offer.RideStatus = RideStatus.running;
+                if(offer.Status.Equals(OfferStatus.open))
+                {
+                    offer.Status = OfferStatus.close;
+                }
                 foreach(var booking in bookings)
                 {
-                    booking.Status = Status.running;
+                    booking.Status = BookingStatus.running;
                 }
 
                 return true;
@@ -201,5 +204,25 @@ namespace CarPoolApplication.Services
                 return false;
             }
         }
+        public bool CancelRide(Offer offer, List<Booking> bookings)
+        {
+            try
+            {
+                offer.RideStatus = RideStatus.cancel;
+                offer.Status = OfferStatus.close;
+                foreach (var booking in bookings)
+                {
+                    booking.Status = BookingStatus.cancel;
+                }
+
+                return true;
+
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
     }
 }

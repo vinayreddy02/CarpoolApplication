@@ -27,7 +27,7 @@ namespace CarPoolApplication.Models
             CostPerPoint = costPerPoint;
             DateTime = dateTime;
             Status = OfferStatus.open;
-            RideStatus = RideStatus.pending;
+            RideStatus = RideStatus.NotSarted;
             ID = driverID + DateTime.UtcNow.ToString("mmss");
         }
     }

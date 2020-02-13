@@ -13,7 +13,7 @@ namespace CarPoolApplication.Models
         public string OfferID { get; set; }
         public decimal Price { get; set; }
         public int NumberOfseats { get; set; }
-        public Status Status { get; set; }
+        public BookingStatus Status { get; set; }
         public DateTime DateTime { get; set; }
         public Booking(string userID,string fromPoint,string toPoint,string offerId,int numberOfSeats,DateTime dateTime)
         {
@@ -22,7 +22,7 @@ namespace CarPoolApplication.Models
             ToPoint = toPoint;
             OfferID = offerId;
             NumberOfseats = numberOfSeats;
-            Status = Status.pending;
+            Status = BookingStatus.pending;
             DateTime = dateTime;
             ID = userID + DateTime.UtcNow.ToString("mmss");
         }

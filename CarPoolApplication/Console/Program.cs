@@ -13,7 +13,7 @@ namespace CarPoolApplication
             OfferServices offerServices = new OfferServices();
             LocationServices locationService = new LocationServices();
             BookingServices bookingServices = new BookingServices();
-            List<Location> locations = locationService.GetAll();
+           
 
             while (true)
             {
@@ -27,7 +27,7 @@ namespace CarPoolApplication
                         case LoginOption.signup:
                             {  name:
                                 Console.WriteLine("Enter name");
-                                string name = Console.ReadLine();
+                                string name = Console.ReadLine().ToUpper();
                                 if (string.IsNullOrEmpty(name))
                                 {
                                     Console.WriteLine("invalid input\n");
@@ -65,7 +65,7 @@ namespace CarPoolApplication
                         case LoginOption.login:
                             {
                                 Console.WriteLine("Enter UserID");
-                                string userID = Console.ReadLine();
+                                string userID = Console.ReadLine().ToUpper();
                                 Console.WriteLine("Enter password");
                                 String password = Console.ReadLine();
                                 if (userServices.IsValidUser(userID, password))
@@ -78,16 +78,17 @@ namespace CarPoolApplication
                                         try
                                         {
                                             Console.WriteLine("Welcome..choose an option\n");
-                                            Console.WriteLine("1.Create Offer\n2.Book a car\n3.View all created offers\n4.View all bookings\n\n5.Log out\n");
+                                            Console.WriteLine("1.Create Offer\n2.Book a car\n3.View all created offers\n4.View all bookings\n5.Log out\n");
                                             Options choice = (Options)Convert.ToInt32(Console.ReadLine());
                                             switch (choice)
                                             {
                                                 case Options.createOffer:
                                                     {
+                                                        List<string> places = new List<string>();
                                                     CarNumber:
 
                                                         Console.WriteLine("Enter car number\n");
-                                                        string vehicleNumber = Console.ReadLine();
+                                                        string vehicleNumber = Console.ReadLine().ToUpper();
                                                         if (string.IsNullOrEmpty(vehicleNumber))
                                                         {
                                                             Console.WriteLine("invalid input\n");
@@ -95,7 +96,7 @@ namespace CarPoolApplication
                                                         }
                                                     CarName:
                                                         Console.WriteLine("Enter car name\n");
-                                                        string vehicleName = Console.ReadLine();
+                                                        string vehicleName = Console.ReadLine().ToUpper();
                                                         if (string.IsNullOrEmpty(vehicleName))
                                                         {
                                                             Console.WriteLine("invalid input\n");
@@ -112,109 +113,122 @@ namespace CarPoolApplication
 
 
                                                             Console.WriteLine("Enter from location: ");
-                                                            string FromLocation = Console.ReadLine();
-                                                            if (string.IsNullOrEmpty(FromLocation))
+                                                            string fromLocation = Console.ReadLine().ToUpper();
+                                                            if (string.IsNullOrEmpty(fromLocation))
                                                             {
                                                                 Console.WriteLine("invalid input\n");
                                                                 goto FromLocation;
                                                             }
+                                                           
                                                         ToLocation:
 
                                                             Console.WriteLine("Enter to location: ");
-                                                            string ToLocation = Console.ReadLine();
-                                                            if (string.IsNullOrEmpty(ToLocation))
+                                                            string toLocation = Console.ReadLine().ToUpper();
+
+                                                                if (string.IsNullOrEmpty(toLocation))
                                                             {
                                                                 Console.WriteLine("invalid input\n");
                                                                 goto ToLocation;
                                                             }
-                                                        costPerPoint:
+                                                                else if(toLocation.Equals(fromLocation))
+                                                            {
+                                                                Console.WriteLine("you can not have same place as from location and to location");
+                                                                goto ToLocation;
+                                                            }
+                                                            
+                                                        numberOfViaPoints:
                                                             try
                                                             {
-                                                                Console.WriteLine("Enter costper point\n");
-                                                                int costPerPoint = Convert.ToInt32(Console.ReadLine());
-                                                            Date:
-
-                                                                Console.WriteLine("Enter date and time in (yyyy/mm/day hr:min am/pm) formate\n");
-
-                                                                try
+                                                            
+                                                                Console.WriteLine("Enter number of via points\n");
+                                                                int numberOfViaPoints = Convert.ToInt32(Console.ReadLine());
+                                                                Console.WriteLine("Enter viapoints\n");
+                                                                int start = 1;
+                                                                int lastStation = numberOfViaPoints + 2;
+                                                                while (numberOfViaPoints != 0)
                                                                 {
-                                                                    DateTime dateTime = DateTime.Parse(Console.ReadLine());
+                                                                viapoint:
 
-                                                                    if (DateTime.Compare(dateTime, DateTime.Now) < 0)
+                                                                    string place = Console.ReadLine().ToUpper();
+                                                                    if (string.IsNullOrEmpty(place))
                                                                     {
-                                                                        Console.WriteLine("Please give valid Date and Time\n");
-                                                                        goto Date;
+                                                                        Console.WriteLine("invalid input\n");
+                                                                        goto viapoint;
                                                                     }
 
-                                                                    Offer offer = new Offer(user.ID, FromLocation, ToLocation, vehicle.ID, numberOfSeats, costPerPoint, dateTime);
-                                                                    offerServices.Add(offer);
-                                                                numberOfViaPoints:
+                                                                    if (!places.Contains(place)&&place!=fromLocation&&place!=toLocation)
+                                                                    {
+                                                                        places.Add(place);
+                                                                        numberOfViaPoints--;
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        Console.WriteLine("you can not add a place which is already added\n");
+                                                                    }
+                                                                }
+                                                            costPerPoint:
+                                                                try
+                                                                {
+                                                                    Console.WriteLine("Enter costper point\n");
+                                                                    int costPerPoint = Convert.ToInt32(Console.ReadLine());
+                                                                Date:
+
+                                                                    Console.WriteLine("Enter date and time\n");
+
                                                                     try
                                                                     {
-                                                                        Console.WriteLine("Enter number of via points\n");
-                                                                        int numberOfViaPoints = Convert.ToInt32(Console.ReadLine());
-                                                                        Console.WriteLine("Enter viapoints\n");
-                                                                        int start = 1;
-                                                                        if (!locationService.Add(new Location(FromLocation, offer.ID, start)))
-                                                                        {
-                                                                            Console.WriteLine("from location not saved\n");
-                                                                        }
-                                                                        if (!locationService.Add(new Location(ToLocation, offer.ID, numberOfViaPoints + 2)))
-                                                                        {
-                                                                            Console.WriteLine("To location not saved\n");
-                                                                        }
-                                                                        while (numberOfViaPoints != 0)
-                                                                        {
-                                                                        viapoint:
+                                                                        DateTime dateTime = DateTime.Parse(Console.ReadLine());
 
-                                                                            string place = Console.ReadLine();
-                                                                            if (string.IsNullOrEmpty(place))
-                                                                            {
-                                                                                Console.WriteLine("invalid input\n");
-                                                                                goto viapoint;
-                                                                            }
+                                                                        if (DateTime.Compare(dateTime, DateTime.Now) < 0)
+                                                                        {
+                                                                            Console.WriteLine("Please give valid Date and Time\n");
+                                                                            goto Date;
+                                                                        }
 
-                                                                            if (!locationService.IsPlaceExists(place, offer.ID))
+                                                                        Offer offer = new Offer(user.ID, fromLocation, toLocation, vehicle.ID, numberOfSeats, costPerPoint, dateTime);
+                                                                        offerServices.Add(offer);
+                                                                        
+                                                                            if (!locationService.Add(new Location(fromLocation, offer.ID, start)))
                                                                             {
-                                                                                if (locationService.Add(new Location(place, offer.ID, ++start)))
-                                                                                {
-                                                                                    numberOfViaPoints--;
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    Console.WriteLine(place + "not saved");
-                                                                                }
+                                                                                Console.WriteLine("from location not saved\n");
                                                                             }
-                                                                            else
+                                                                            if (!locationService.Add(new Location(toLocation, offer.ID, lastStation)))
                                                                             {
-                                                                                Console.WriteLine("you can not add a place which is already added\n");
+                                                                                Console.WriteLine("To location not saved\n");
+                                                                            }
+                                                                            foreach(var place in places)
+                                                                        {
+                                                                            if (!locationService.Add(new Location(place, offer.ID, ++start)))
+                                                                            {
+                                                                                Console.WriteLine(" location not saved\n");
                                                                             }
                                                                         }
 
-
-                                                                        Console.WriteLine("via points added successfully\n");
-                                                                        Console.WriteLine("Offer created\n");
-                                                                        Console.WriteLine("offerID:" + offer.ID);
-                                                                        break;
+                                                                        places.Clear();
+                                                                            Console.WriteLine("Offer created\n");
+                                                                            Console.WriteLine("offerID:" + offer.ID);
+                                                                            break;
+                                                                        
                                                                     }
                                                                     catch
                                                                     {
                                                                         Console.WriteLine("invalid input\n");
-                                                                        goto numberOfViaPoints;
+                                                                        goto Date;
                                                                     }
                                                                 }
                                                                 catch
                                                                 {
                                                                     Console.WriteLine("invalid input\n");
-                                                                    goto Date;
+                                                                    goto costPerPoint;
                                                                 }
+
                                                             }
                                                             catch
                                                             {
                                                                 Console.WriteLine("invalid input\n");
-                                                                goto costPerPoint;
+                                                                goto numberOfViaPoints;
                                                             }
-
 
                                                         }
                                                         catch
@@ -230,7 +244,7 @@ namespace CarPoolApplication
                                                         {
                                                             fromLocation:
                                                             Console.WriteLine("Enter from location: ");
-                                                            string fromLocation = Console.ReadLine();
+                                                            string fromLocation = Console.ReadLine().ToUpper();
                                                             if (string.IsNullOrEmpty(fromLocation))
                                                             {
                                                                 Console.WriteLine("invalid input\n");
@@ -238,7 +252,7 @@ namespace CarPoolApplication
                                                             }
                                                             toLocation:
                                                             Console.WriteLine("Enter to location: ");
-                                                            string toLocation = Console.ReadLine();
+                                                            string toLocation = Console.ReadLine().ToUpper();
                                                             if (string.IsNullOrEmpty(toLocation))
                                                             {
                                                                 Console.WriteLine("invalid input\n");
@@ -252,23 +266,23 @@ namespace CarPoolApplication
                                                             Date:
                                                                 try
                                                                 {
-                                                                    Console.WriteLine("Enter date  in yyyy/mm/day  formate\n");
+                                                                    Console.WriteLine("Enter date and time\n");
                                                                     DateTime dateTime = DateTime.Parse(Console.ReadLine());
                                                                     if (DateTime.Compare(dateTime, DateTime.Now) < 0)
                                                                     {
                                                                         Console.WriteLine("Please give valid Date and Time\n");
                                                                         goto Date;
                                                                     }
-                                                                    List<Offer> availableOffers = offerServices.GetListOfAvilableOffers(fromLocation, toLocation, locations, numberOfSeats, dateTime);
+                                                                    List<Offer> availableOffers = offerServices.GetAvilableOffers(fromLocation, toLocation, locationService, numberOfSeats, dateTime);
                                                                     if (availableOffers.Count > 0)
                                                                     {
                                                                        select:
-                                                                        Console.WriteLine("select  offer\n");
-                                                                        Console.WriteLine("select 0 to exit\n");
+                                                                        Console.WriteLine("choose an aption\n");
+                                                                        Console.WriteLine("select 0 to exit");
                                                                         int index = 1;
                                                                         foreach(var offer in availableOffers)
                                                                         {
-                                                                            Console.WriteLine("{0}.Price:{1}\tCar:{2}\tTime:{3}\t", index, offer.Price,offer.CarID, offer.DateTime);
+                                                                            Console.WriteLine("{0}.StartLocation:{1}\tToLocation:{2}\tPricePerSeat:{3}\tCar:{4}\tTime:{5}\n", index,offer.FromPoint,offer.ToPoint,offer.Price,offer.CarID, offer.DateTime);
                                                                                 index++;
 
                                                                         }
@@ -334,7 +348,7 @@ namespace CarPoolApplication
                                                             int index = 1;
                                                             foreach (var booking in bookingHistory)
                                                             {
-                                                                Console.WriteLine("{0}.Frompoint:{1}\tToPoint:{2}\tPrice:{3}\tDriver:{4}\tstatus:{5}\tDateTime:{6}", index, booking.FromPoint, booking.ToPoint, booking.Price, booking.OfferID, booking.Status, booking.DateTime);
+                                                                Console.WriteLine("{0}.Frompoint:{1}\tToPoint:{2}\tPrice:{3}\tDriver:{4}\tstatus:{5}\tDateTime:{6}\tNo.of seats:{7}\n", index, booking.FromPoint, booking.ToPoint, booking.Price, booking.OfferID, booking.Status, booking.DateTime,booking.NumberOfseats);
                                                                 index++;
                                                             }
                                                             break;
@@ -359,11 +373,11 @@ namespace CarPoolApplication
 
                                                                 if (offers != null)
                                                                 {
-                                                                    Console.WriteLine("select offer\n0.exit");
+                                                                    Console.WriteLine("choose an option\n0.exit");
                                                                     int index = 1;
                                                                     foreach (var offer in offers)
                                                                     {
-                                                                        Console.WriteLine("{0}.frompoint:{1}\ttoPoint:{2}\tstatus:{3}\tridestatus:{4}",index,offer.FromPoint,offer.ToPoint,offer.Status,offer.RideStatus);
+                                                                        Console.WriteLine("{0}.frompoint:{1}\ttoPoint:{2}\tstatus:{3}\tridestatus:{4}", index, offer.FromPoint, offer.ToPoint, offer.Status, offer.RideStatus);
                                                                         index++;
                                                                     }
                                                                     int offerNumber = Convert.ToInt32(Console.ReadLine());
@@ -371,11 +385,21 @@ namespace CarPoolApplication
                                                                     if (offerNumber != 0)
                                                                     {
                                                                         Offer selectedOffer = offers[offerNumber - 1];
-                                                                       
+
                                                                         try
                                                                         {
-                                                                            Console.WriteLine("1.Approval of reqests\n2.start ride\n3.End ride\n4.Close offer\n\n5.Exit\n");
-
+                                                                            if (selectedOffer.RideStatus.Equals(RideStatus.NotSarted))
+                                                                            {
+                                                                                Console.WriteLine("1.Approve  reqests\n2.start ride\n4.cancel ride\n5.Close offer\n6.Exit\n");
+                                                                            }
+                                                                            if (selectedOffer.RideStatus.Equals(RideStatus.running))
+                                                                            {
+                                                                                Console.WriteLine("3.End ride\n6.Exit\n");
+                                                                            }
+                                                                            if (selectedOffer.RideStatus.Equals(RideStatus.Compleated) || selectedOffer.RideStatus.Equals(RideStatus.cancel))
+                                                                            {
+                                                                                Console.WriteLine("6.exit\n");
+                                                                            }
                                                                             OfferOption option = (OfferOption)Convert.ToInt32(Console.ReadLine());
                                                                             switch (option)
                                                                             {
@@ -396,7 +420,7 @@ namespace CarPoolApplication
                                                                                                     Console.WriteLine("0. Exit");
                                                                                                     foreach (var request in bookingRequests)
                                                                                                     {
-                                                                                                        if (request.NumberOfseats < selectedOffer.AvailableSeats)
+                                                                                                        if (request.NumberOfseats <= selectedOffer.AvailableSeats)
                                                                                                         {
                                                                                                             Console.WriteLine("{0}. From Point:{1}\tToPoint:{2} \n", index2, request.FromPoint, request.ToPoint);
                                                                                                             index2++;
@@ -407,7 +431,7 @@ namespace CarPoolApplication
                                                                                                     if (approvedRequest > 0 && index2 != 1)
                                                                                                     {
                                                                                                         Booking bookingRequest = bookingRequests[approvedRequest - 1];
-                                                                                                        if (offerServices.ApprovalOfBooking(bookingRequest, selectedOffer, locations))
+                                                                                                        if (offerServices.ApprovalOfBooking(bookingRequest, selectedOffer, locationService))
                                                                                                         {
                                                                                                             Console.WriteLine("Booking Approved\n");
                                                                                                         }
@@ -475,7 +499,6 @@ namespace CarPoolApplication
 
                                                                                                 if (offerServices.EndRide(selectedOffer, bookings))
                                                                                                 {
-
                                                                                                     Console.WriteLine("Ride ended\nThank You:)\n");
                                                                                                 }
                                                                                                 else
@@ -497,12 +520,23 @@ namespace CarPoolApplication
                                                                                             break;
                                                                                         }
                                                                                     }
+                                                                                case OfferOption.cancel:
+                                                                                    {
+                                                                                        if (selectedOffer.RideStatus.Equals(RideStatus.NotSarted))
+                                                                                        {
+                                                                                            List<Booking> bookings = bookingServices.GetAllRidesCancel(selectedOffer.ID);
+                                                                                            offerServices.CancelRide(selectedOffer, bookings);
+                                                                                            Console.WriteLine("Offer canceled\n");
+                                                                                        }
+                                                                                        break;
+                                                                                    }
                                                                                 case OfferOption.CloseOffer:
                                                                                     {
                                                                                         try
                                                                                         {
                                                                                             if (offerServices.CloseOffer(selectedOffer))
                                                                                             {
+
                                                                                                 Console.WriteLine("Offer Closed\n");
                                                                                             }
                                                                                             else
@@ -550,11 +584,11 @@ namespace CarPoolApplication
                                                                     break;
                                                                 }
                                                             }
-                                                            
+
                                                         }
-                                                        catch(Exception ex)
+                                                        catch
                                                         {
-                                                            Console.WriteLine(ex);
+                                                            Console.WriteLine("invalid input\n");
                                                         }
                                                         break;
                                                     }
