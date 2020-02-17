@@ -2,6 +2,7 @@
 using CarPoolApplication.Models;
 using CarPoolApplication.Services;
 using System.Collections.Generic;
+using CarPoolApplication.Interfaces;
 
 namespace CarPoolApplication
 {
@@ -9,10 +10,10 @@ namespace CarPoolApplication
     {
         static void Main(string[] args)
         {
-            UserServices userServices = new UserServices();
-            OfferServices offerServices = new OfferServices();
-            LocationServices locationService = new LocationServices();
-            BookingServices bookingServices = new BookingServices();
+            IUserService userService = new UserServices();
+            IOfferService offerService = new OfferServices();
+            ILocationService locationService = new LocationServices();
+            IBookingService bookingService = new BookingServices();
            
             while (true)
             {
@@ -50,7 +51,7 @@ namespace CarPoolApplication
                                     goto phoneNumber;
                                 }
                                 User user = new User(name, passWord, phoneNumber);
-                                if (userServices.AddUser(user))
+                                if (userService.AddUser(user))
                                 {
                                     Console.WriteLine("account created\nuserId:" + user.ID);
                                     break;
@@ -67,9 +68,9 @@ namespace CarPoolApplication
                                 string userID = Console.ReadLine().ToUpper();
                                 Console.WriteLine("Enter password");
                                 String password = Console.ReadLine();
-                                if (userServices.IsValidUser(userID, password))
+                                if (userService.IsValidUser(userID, password))
                                 {
-                                    User user = userServices.GetUser(userID);
+                                    User user = userService.GetUser(userID);
                                     
                                     while (true)
                                     {
@@ -186,8 +187,7 @@ namespace CarPoolApplication
                                                                         }
 
                                                                         Offer offer = new Offer(user.ID, fromLocation, toLocation, vehicle.ID, numberOfSeats, costPerPoint, dateTime);
-                                                                        offerServices.AddOffer(offer);
-                                                                        
+                                                                   
                                                                             if (!locationService.AddLocation(new Location(fromLocation, offer.ID, start)))
                                                                             {
                                                                                 Console.WriteLine("from location not saved\n");
@@ -205,8 +205,15 @@ namespace CarPoolApplication
                                                                         }
 
                                                                         places.Clear();
+                                                                        if (offerService.AddOffer(offer))
+                                                                        {
                                                                             Console.WriteLine("Offer created\n");
                                                                             Console.WriteLine("offerID:" + offer.ID);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            Console.WriteLine("Offer creation failed\n");
+                                                                        }
                                                                             break;
                                                                         
                                                                     }
@@ -272,55 +279,58 @@ namespace CarPoolApplication
                                                                         Console.WriteLine("Please give valid Date and Time\n");
                                                                         goto Date;
                                                                     }
-                                                                    List<Location> fromLocations = locationService.GetLocations(fromLocation);
-                                                                    List<Location> toLocations = locationService.GetLocations(toLocation);
-                                                                    List<Offer> availableOffers = offerServices.GetAvilableOffers(fromLocation, toLocation, fromLocations, toLocations, numberOfSeats, dateTime);
-                                                                    if (availableOffers.Count > 0)
+                                                                    else
                                                                     {
-                                                                       select:
-                                                                        Console.WriteLine("choose an aption\n");
-                                                                        Console.WriteLine("select 0 to exit");
-                                                                        int index = 1;
-                                                                        foreach(var offer in availableOffers)
+                                                                        List<Location> fromLocations = locationService.GetLocations(fromLocation);
+                                                                        List<Location> toLocations = locationService.GetLocations(toLocation);
+                                                                        List<Offer> availableOffers = offerService.GetAvilableOffers(fromLocation, toLocation, fromLocations, toLocations, numberOfSeats, dateTime);
+                                                                        if (availableOffers.Count > 0)
                                                                         {
-                                                                            Console.WriteLine("{0}.StartLocation:{1}\tToLocation:{2}\tPricePerSeat:{3}\tCar:{4}\tTime:{5}\n", index,offer.FromPoint,offer.ToPoint,offer.Price,offer.CarID, offer.DateTime);
+                                                                        select:
+                                                                            Console.WriteLine("choose an aption\n");
+                                                                            Console.WriteLine("select 0 to exit");
+                                                                            int index = 1;
+                                                                            foreach (var offer in availableOffers)
+                                                                            {
+                                                                                Console.WriteLine("{0}.StartLocation:{1}\tToLocation:{2}\tPricePerSeat:{3}\tCar:{4}\tTime:{5}\n", index, offer.FromPoint, offer.ToPoint, offer.Price, offer.CarID, offer.DateTime);
                                                                                 index++;
 
-                                                                        }
-                                                                       
-                                                                        try
-                                                                        {
-                                                                            int selectedOption = Convert.ToInt32(Console.ReadLine());
-                                                                            if (selectedOption != 0)
+                                                                            }
+
+                                                                            try
                                                                             {
-                                                                                Offer selectedOffer = availableOffers[selectedOption - 1];
-                                                                                Booking bookingRequest = new Booking(user.ID, fromLocation, toLocation, selectedOffer.ID, numberOfSeats, dateTime);
-                                                                                if (bookingServices.AddRequest(bookingRequest))
+                                                                                int selectedOption = Convert.ToInt32(Console.ReadLine());
+                                                                                if (selectedOption != 0)
                                                                                 {
-                                                                                    Console.WriteLine("Booking reqest sent :)\n");
-                                                                                    break;
+                                                                                    Offer selectedOffer = availableOffers[selectedOption - 1];
+                                                                                    Booking bookingRequest = new Booking(user.ID, fromLocation, toLocation, selectedOffer.ID, numberOfSeats, dateTime);
+                                                                                    if (bookingService.AddRequest(bookingRequest))
+                                                                                    {
+                                                                                        Console.WriteLine("Booking reqest sent :)\n");
+                                                                                        break;
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        Console.WriteLine("Booking request failed\n");
+                                                                                        break;
+                                                                                    }
                                                                                 }
                                                                                 else
                                                                                 {
-                                                                                    Console.WriteLine("Booking request failed\n");
                                                                                     break;
                                                                                 }
                                                                             }
-                                                                            else
+                                                                            catch
                                                                             {
-                                                                                break;
+                                                                                Console.WriteLine("Invalid inpt\n");
+                                                                                goto select;
                                                                             }
                                                                         }
-                                                                        catch
+                                                                        else
                                                                         {
-                                                                            Console.WriteLine("Invalid inpt\n");
-                                                                            goto select;
+                                                                            Console.WriteLine("There are no available offers\n");
+                                                                            break;
                                                                         }
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        Console.WriteLine("There are no available offers\n");
-                                                                        break;
                                                                     }
                                                                 }
                                                                 catch
@@ -343,7 +353,7 @@ namespace CarPoolApplication
                                                     }
                                                 case Options.ViewAllBookings:
                                                     {
-                                                        List<Booking> bookingHistory = bookingServices.GetAllbookings(user.ID);
+                                                        List<Booking> bookingHistory = bookingService.GetAllbookings(user.ID);
                                                         if (bookingHistory.Count > 0)
                                                         {
                                                             int index = 1;
@@ -370,7 +380,7 @@ namespace CarPoolApplication
 
 
                                                                 Console.WriteLine("view all offers\n");
-                                                                List<Offer> offers = offerServices.GetAllOffers(user.ID);
+                                                                List<Offer> offers = offerService.GetAllOffers(user.ID);
 
                                                                 if (offers != null)
                                                                 {
@@ -413,7 +423,7 @@ namespace CarPoolApplication
                                                                                             {
                                                                                                 Console.WriteLine("approve reqest\n");
 
-                                                                                                List<Booking> bookingRequests = bookingServices.GetRequests(selectedOffer.ID);
+                                                                                                List<Booking> bookingRequests = bookingService.GetRequests(selectedOffer.ID);
                                                                                                 if (bookingRequests.Count > 0)
                                                                                                 {
 
@@ -433,7 +443,7 @@ namespace CarPoolApplication
                                                                                                     {
                                                                                                         Booking bookingRequest = bookingRequests[approvedRequest - 1];
                                                                                                         List<Location> locations = locationService.GetAllLocations(selectedOffer.ID);
-                                                                                                        if (offerServices.ApprovalOfBooking(bookingRequest, selectedOffer, locations))
+                                                                                                        if (offerService.ApprovalOfBooking(bookingRequest, selectedOffer, locations))
                                                                                                         {
                                                                                                             Console.WriteLine("Booking Approved\n");
                                                                                                         }
@@ -473,10 +483,10 @@ namespace CarPoolApplication
                                                                                         {
                                                                                             if (DateTime.Compare(selectedOffer.DateTime, DateTime.Now) < 0)
                                                                                             {
-                                                                                                List<Booking> bookings = bookingServices.GetAllRidesToStart(selectedOffer.ID);
+                                                                                                List<Booking> bookings = bookingService.GetAllRidesToStart(selectedOffer.ID);
                                                                                                 if (bookings.Count != 0)
                                                                                                 {
-                                                                                                    if(offerServices.StartRide(selectedOffer)&&bookingServices.StartRides(selectedOffer.ID))
+                                                                                                    if(offerService.StartRide(selectedOffer)&&bookingService.StartRides(selectedOffer.ID))
                                                                                                         {
                                                                                                         Console.WriteLine("ride started\n");
                                                                                                     }
@@ -504,7 +514,7 @@ namespace CarPoolApplication
                                                                                             if (selectedOffer.RideStatus.Equals(RideStatus.running))
                                                                                             {
                                                                                                 
-                                                                                                if (offerServices.EndRide(selectedOffer)&& bookingServices.EndRides(selectedOffer.ID))
+                                                                                                if (offerService.EndRide(selectedOffer)&& bookingService.EndRides(selectedOffer.ID))
                                                                                                 {
                                                                                                     Console.WriteLine("Ride ended\nThank You:)\n");
                                                                                                 }
@@ -543,7 +553,7 @@ namespace CarPoolApplication
                                                                                         {
                                                                                            ;
 
-                                                                                            if (offerServices.CancelRide(selectedOffer) && bookingServices.CancelRides(selectedOffer.ID))
+                                                                                            if (offerService.CancelRide(selectedOffer) && bookingService.CancelRides(selectedOffer.ID))
                                                                                             {
                                                                                                 Console.WriteLine("Ride canceled\n");
                                                                                             }
@@ -565,7 +575,7 @@ namespace CarPoolApplication
                                                                                     {
                                                                                         try
                                                                                         {
-                                                                                            if (offerServices.CloseOffer(selectedOffer))
+                                                                                            if (offerService.CloseOffer(selectedOffer))
                                                                                             {
 
                                                                                                 Console.WriteLine("Offer Closed\n");
