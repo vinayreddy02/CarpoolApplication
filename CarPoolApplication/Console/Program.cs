@@ -14,7 +14,6 @@ namespace CarPoolApplication
             LocationServices locationService = new LocationServices();
             BookingServices bookingServices = new BookingServices();
            
-
             while (true)
             {
             Login:
@@ -273,7 +272,9 @@ namespace CarPoolApplication
                                                                         Console.WriteLine("Please give valid Date and Time\n");
                                                                         goto Date;
                                                                     }
-                                                                    List<Offer> availableOffers = offerServices.GetAvilableOffers(fromLocation, toLocation, locationService, numberOfSeats, dateTime);
+                                                                    List<Location> fromLocations = locationService.GetLocations(fromLocation);
+                                                                    List<Location> toLocations = locationService.GetLocations(toLocation);
+                                                                    List<Offer> availableOffers = offerServices.GetAvilableOffers(fromLocation, toLocation, fromLocations, toLocations, numberOfSeats, dateTime);
                                                                     if (availableOffers.Count > 0)
                                                                     {
                                                                        select:
@@ -431,7 +432,8 @@ namespace CarPoolApplication
                                                                                                     if (approvedRequest > 0 && index2 != 1)
                                                                                                     {
                                                                                                         Booking bookingRequest = bookingRequests[approvedRequest - 1];
-                                                                                                        if (offerServices.ApprovalOfBooking(bookingRequest, selectedOffer, locationService))
+                                                                                                        List<Location> locations = locationService.GetAllLocations(selectedOffer.ID);
+                                                                                                        if (offerServices.ApprovalOfBooking(bookingRequest, selectedOffer, locations))
                                                                                                         {
                                                                                                             Console.WriteLine("Booking Approved\n");
                                                                                                         }
@@ -467,15 +469,20 @@ namespace CarPoolApplication
                                                                                     }
                                                                                 case OfferOption.startRide:
                                                                                     {
-                                                                                        if (selectedOffer.Status.Equals(OfferStatus.open))
+                                                                                        if (selectedOffer.RideStatus.Equals(RideStatus.NotSarted))
                                                                                         {
                                                                                             if (DateTime.Compare(selectedOffer.DateTime, DateTime.Now) < 0)
                                                                                             {
                                                                                                 List<Booking> bookings = bookingServices.GetAllRidesToStart(selectedOffer.ID);
                                                                                                 if (bookings.Count != 0)
                                                                                                 {
-                                                                                                    offerServices.StartRide(selectedOffer, bookings);
-                                                                                                    Console.WriteLine("ride started\n");
+                                                                                                    if(offerServices.StartRide(selectedOffer)&&bookingServices.StartRides(selectedOffer.ID))
+                                                                                                        {
+                                                                                                        Console.WriteLine("ride started\n");
+                                                                                                    }
+                                                                                                    {
+                                                                                                        Console.WriteLine("ride starting failed\n");
+                                                                                                    }
                                                                                                 }
                                                                                                 else
                                                                                                 {
@@ -487,17 +494,17 @@ namespace CarPoolApplication
                                                                                                 Console.WriteLine("still there is some time to start ride");
                                                                                             }
                                                                                         }
+                                                                                     
                                                                                         break;
                                                                                     }
                                                                                 case OfferOption.EndRide:
                                                                                     {
                                                                                         try
                                                                                         {
-                                                                                            List<Booking> bookings = bookingServices.GetAllRidesToEnd(selectedOffer.ID);
-                                                                                            if (bookings.Count != 0)
+                                                                                            if (selectedOffer.RideStatus.Equals(RideStatus.running))
                                                                                             {
-
-                                                                                                if (offerServices.EndRide(selectedOffer, bookings))
+                                                                                                
+                                                                                                if (offerServices.EndRide(selectedOffer)&& bookingServices.EndRides(selectedOffer.ID))
                                                                                                 {
                                                                                                     Console.WriteLine("Ride ended\nThank You:)\n");
                                                                                                 }
@@ -506,13 +513,23 @@ namespace CarPoolApplication
                                                                                                     Console.WriteLine("Sorry:(\nRide not ended\n");
                                                                                                 }
                                                                                                 break;
-
+                                                                                            }
+                                                                                            else if(selectedOffer.RideStatus.Equals(RideStatus.Compleated))
+                                                                                            {
+                                                                                                Console.WriteLine("Ride already ended \n");
+                                                                                                break;
+                                                                                            }
+                                                                                            else if(selectedOffer.RideStatus.Equals(RideStatus.cancel))
+                                                                                                {
+                                                                                                Console.WriteLine("Ride canceled\n");
+                                                                                                break;
                                                                                             }
                                                                                             else
                                                                                             {
-                                                                                                Console.WriteLine("There are no bookings \n");
+                                                                                                Console.WriteLine("Ride not started yet\n");
                                                                                                 break;
                                                                                             }
+
                                                                                         }
                                                                                         catch
                                                                                         {
@@ -524,9 +541,23 @@ namespace CarPoolApplication
                                                                                     {
                                                                                         if (selectedOffer.RideStatus.Equals(RideStatus.NotSarted))
                                                                                         {
-                                                                                            List<Booking> bookings = bookingServices.GetAllRidesCancel(selectedOffer.ID);
-                                                                                            offerServices.CancelRide(selectedOffer, bookings);
-                                                                                            Console.WriteLine("Offer canceled\n");
+                                                                                           ;
+
+                                                                                            if (offerServices.CancelRide(selectedOffer) && bookingServices.CancelRides(selectedOffer.ID))
+                                                                                            {
+                                                                                                Console.WriteLine("Ride canceled\n");
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                Console.WriteLine("sorry :( not canceled\n");
+                                                                                            }
+                                                                                        }
+                                                                                        else if (selectedOffer.RideStatus.Equals(RideStatus.cancel))
+                                                                                        {
+                                                                                            Console.WriteLine("Ride  alredy canceled\n");
+                                                                                        }
+                                                                                        else { 
+                                                                                            Console.WriteLine(" you can not cancel now\n");
                                                                                         }
                                                                                         break;
                                                                                     }

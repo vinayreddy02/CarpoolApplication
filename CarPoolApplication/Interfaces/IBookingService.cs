@@ -9,9 +9,10 @@ namespace CarPoolApplication.Interfaces
     {
         public List<Booking> GetRequests(string offerID);
         public List<Booking> GetAllbookings(string userID);
-        public List<Booking> GetRides(string offerID);
         public List<Booking> GetAllRidesToStart(string offerID);
-        public List<Booking> GetAllRidesToEnd(string offerID);
+        public bool StartRides(string offerID);
+        public bool EndRides(string offerID);
+        public bool CancelRides(string offerID);
         public List<Booking> GetAll();
         public bool Add(Booking bookingRequest);
     }

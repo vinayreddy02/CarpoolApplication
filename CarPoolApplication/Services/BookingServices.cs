@@ -48,17 +48,6 @@ namespace CarPoolApplication.Services
                 return null;
             }
         }
-        public List<Booking> GetRides(string offerID)
-        {
-            try
-            {
-                return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID));
-            }
-            catch
-            {
-                return null;
-            }
-        }
         public List<Booking> GetAllRidesToStart(string offerID)
         {
             try
@@ -70,26 +59,54 @@ namespace CarPoolApplication.Services
                 return null;
             }
         }
-        public List<Booking> GetAllRidesCancel(string offerID)
+       
+        public bool StartRides(string offerID)
         {
             try
             {
-                return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) && (bookingrequests.Status.Equals(BookingStatus.confirm)) || (bookingrequests.Status.Equals(BookingStatus.pending)));
+                List<Booking> bookings = bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) && (bookingrequests.Status.Equals(BookingStatus.confirm)));
+                foreach (var booking in bookings)
+                {
+                    booking.Status = BookingStatus.running;
+                }
+                return true;
             }
             catch
             {
-                return null;
+                return false;
             }
         }
-        public List<Booking> GetAllRidesToEnd(string offerID)
+        public bool EndRides(string offerID)
+
         {
             try
             {
-                return bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) && (bookingrequests.Status.Equals(BookingStatus.running)));
+                List<Booking> bookings = bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) && (bookingrequests.Status.Equals(BookingStatus.running)));
+                foreach (var booking in bookings)
+                {
+                    booking.Status = BookingStatus.compleated;
+                }
+                return true;
             }
             catch
             {
-                return null;
+                return false;
+            }
+        }
+        public bool CancelRides(string offerID)
+        {
+            try
+            {
+                List<Booking> bookings = bookingrequests.FindAll(bookingrequests => string.Equals(bookingrequests.OfferID, offerID) && (bookingrequests.Status.Equals(BookingStatus.confirm)) || (bookingrequests.Status.Equals(BookingStatus.pending)));
+                foreach (var booking in bookings)
+                {
+                    booking.Status = BookingStatus.cancel;
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
     }

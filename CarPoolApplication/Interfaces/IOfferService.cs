@@ -12,10 +12,11 @@ namespace CarPoolApplication.Interfaces
         public bool Add(Offer offer);
         public List<Offer> GetOffers(string userID);
         public Offer GetOfferUsingOfferID(string OfferID);
-        public List<Offer> GetAvilableOffers(string frompoint, string topoint, LocationServices locationService, int numberOfSeats, DateTime dateTime);
-        public bool ApprovalOfBooking(Booking request, Offer offer,LocationServices locationService);
-        public bool EndRide(Offer offer, List<Booking> bookings);
-        public bool StartRide(Offer offer, List<Booking> bookings);
+        public List<Offer> GetAvilableOffers(string frompoint, string topoint,List<Location> fromLocations,List<Location> toLocations, int numberOfSeats, DateTime dateTime);
+        public bool ApprovalOfBooking(Booking request, Offer offer,List<Location> locations);
+        public bool EndRide(Offer offer);
+        public bool StartRide(Offer offer);
+        public bool CancelRide(Offer offer);
         public List<Offer> GetAllOffers(string userID);
         public bool CloseOffer(Offer offer);
     }
