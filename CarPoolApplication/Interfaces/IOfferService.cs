@@ -9,7 +9,7 @@ namespace CarPoolApplication.Interfaces
     interface IOfferService
     {
         public List<Offer> GetAll();
-        public bool Add(Offer offer);
+        public bool AddOffer(Offer offer);
         public List<Offer> GetOffers(string userID);
         public Offer GetOfferUsingOfferID(string OfferID);
         public List<Offer> GetAvilableOffers(string frompoint, string topoint,List<Location> fromLocations,List<Location> toLocations, int numberOfSeats, DateTime dateTime);

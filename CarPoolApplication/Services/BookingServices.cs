@@ -14,7 +14,7 @@ namespace CarPoolApplication.Services
         {
             return bookingrequests;
         }
-        public bool Add(Booking bookingRequest)
+        public bool AddRequest(Booking bookingRequest)
         {
             try
             {

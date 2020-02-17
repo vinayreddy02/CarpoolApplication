@@ -23,7 +23,7 @@ namespace CarPoolApplication.Services
                 return null;
             }
         }
-        public bool Add(Offer offer)
+        public bool AddOffer(Offer offer)
         {
             try
             {

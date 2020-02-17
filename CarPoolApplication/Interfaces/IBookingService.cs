@@ -14,6 +14,6 @@ namespace CarPoolApplication.Interfaces
         public bool EndRides(string offerID);
         public bool CancelRides(string offerID);
         public List<Booking> GetAll();
-        public bool Add(Booking bookingRequest);
+        public bool AddRequest(Booking bookingRequest);
     }
 }

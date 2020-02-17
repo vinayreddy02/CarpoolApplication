@@ -50,7 +50,7 @@ namespace CarPoolApplication
                                     goto phoneNumber;
                                 }
                                 User user = new User(name, passWord, phoneNumber);
-                                if (userServices.Add(user))
+                                if (userServices.AddUser(user))
                                 {
                                     Console.WriteLine("account created\nuserId:" + user.ID);
                                     break;
@@ -186,19 +186,19 @@ namespace CarPoolApplication
                                                                         }
 
                                                                         Offer offer = new Offer(user.ID, fromLocation, toLocation, vehicle.ID, numberOfSeats, costPerPoint, dateTime);
-                                                                        offerServices.Add(offer);
+                                                                        offerServices.AddOffer(offer);
                                                                         
-                                                                            if (!locationService.Add(new Location(fromLocation, offer.ID, start)))
+                                                                            if (!locationService.AddLocation(new Location(fromLocation, offer.ID, start)))
                                                                             {
                                                                                 Console.WriteLine("from location not saved\n");
                                                                             }
-                                                                            if (!locationService.Add(new Location(toLocation, offer.ID, lastStation)))
+                                                                            if (!locationService.AddLocation(new Location(toLocation, offer.ID, lastStation)))
                                                                             {
                                                                                 Console.WriteLine("To location not saved\n");
                                                                             }
                                                                             foreach(var place in places)
                                                                         {
-                                                                            if (!locationService.Add(new Location(place, offer.ID, ++start)))
+                                                                            if (!locationService.AddLocation(new Location(place, offer.ID, ++start)))
                                                                             {
                                                                                 Console.WriteLine(" location not saved\n");
                                                                             }
@@ -295,7 +295,7 @@ namespace CarPoolApplication
                                                                             {
                                                                                 Offer selectedOffer = availableOffers[selectedOption - 1];
                                                                                 Booking bookingRequest = new Booking(user.ID, fromLocation, toLocation, selectedOffer.ID, numberOfSeats, dateTime);
-                                                                                if (bookingServices.Add(bookingRequest))
+                                                                                if (bookingServices.AddRequest(bookingRequest))
                                                                                 {
                                                                                     Console.WriteLine("Booking reqest sent :)\n");
                                                                                     break;
@@ -393,11 +393,11 @@ namespace CarPoolApplication
                                                                             {
                                                                                 Console.WriteLine("1.Approve  reqests\n2.start ride\n4.cancel ride\n5.Close offer\n6.Exit\n");
                                                                             }
-                                                                            if (selectedOffer.RideStatus.Equals(RideStatus.running))
+                                                                           else if (selectedOffer.RideStatus.Equals(RideStatus.running))
                                                                             {
                                                                                 Console.WriteLine("3.End ride\n6.Exit\n");
                                                                             }
-                                                                            if (selectedOffer.RideStatus.Equals(RideStatus.Compleated) || selectedOffer.RideStatus.Equals(RideStatus.cancel))
+                                                                           else if (selectedOffer.RideStatus.Equals(RideStatus.Compleated) || selectedOffer.RideStatus.Equals(RideStatus.cancel))
                                                                             {
                                                                                 Console.WriteLine("6.exit\n");
                                                                             }

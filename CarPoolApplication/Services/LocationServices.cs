@@ -11,7 +11,7 @@ namespace CarPoolApplication.Services
    class LocationServices: ILocationService
     { 
         public List<Location> locations = new List<Location>();
-        public bool Add(Location  point)
+        public bool AddLocation(Location  point)
         {
             try
             {

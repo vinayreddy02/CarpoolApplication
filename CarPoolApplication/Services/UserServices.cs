@@ -22,7 +22,7 @@ namespace CarPoolApplication.Services
                 return null;
             }
         }
-        public bool Add(User user)
+        public bool AddUser(User user)
         {
             try
             {

@@ -8,7 +8,7 @@ namespace CarPoolApplication.Interfaces
     interface IUserService
     {
         public List<User> GetAll();
-        public bool Add(User user);
+        public bool AddUser(User user);
         public User GetUser(string userId);
         public bool IsValidUser(string ID, string password);
     }

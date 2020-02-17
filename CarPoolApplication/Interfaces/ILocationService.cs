@@ -9,7 +9,7 @@ namespace CarPoolApplication.Interfaces
     {
         public List<Location> GetAllLocations(string offerID);
     
-        public bool Add(Location point);
+        public bool AddLocation(Location point);
         public List<Location> GetAll();
     }
 }
